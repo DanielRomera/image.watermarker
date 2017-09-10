@@ -1,0 +1,25 @@
+﻿AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Lambda to delete all the watermarked images
+Resources:
+  S3Empty:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.empty
+      Runtime: nodejs6.10
+      CodeUri: .
+      Description: Lambda to delete all the watermarked images
+      MemorySize: 128
+      Timeout: 90
+      Role: 'arn:aws:iam::229617835305:role/APIExecutionRole'
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            Path: /serverless/empty
+            Method: POST
+      Environment:
+        Variables:
+          bucket: drc-images
+          masters_prefix: masters
+          watermarked_prefix: watermarked

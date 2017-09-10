@@ -1,0 +1,43 @@
+﻿AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Takes a S3 filename and adds a watermark
+Resources:
+  S3watermarker:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs6.10
+      CodeUri: .
+      Description: Takes a S3 filename and adds a watermark
+      MemorySize: 512
+      Timeout: 30
+      Role: 'arn:aws:iam::229617835305:role/APIExecutionRole'
+      Events:
+        BucketEvent1:
+          Type: S3
+          Properties:
+            Bucket:
+              Ref: Bucket1
+            Events:
+              - 's3:ObjectCreated:Post'
+              - 's3:ObjectCreated:Put'
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: masters/
+        SNS1:
+          Type: SNS
+          Properties:
+            Topic:
+              Ref: SNSTopic1
+      Environment:
+        Variables:
+          masters_prefix: masters
+          watermark: 'https://s3-eu-west-1.amazonaws.com/drc-images/watermark/logo.png'
+          Bucket: drc-images
+          watermarked_prefix: watermarked
+  Bucket1:
+    Type: 'AWS::S3::Bucket'
+  SNSTopic1:
+    Type: 'AWS::SNS::Topic'
